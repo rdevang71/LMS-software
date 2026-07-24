@@ -32,6 +32,15 @@ const quizQuestionSchema = new mongoose.Schema(
   { _id: true },
 );
 
+const refreshTokenSchema = new mongoose.Schema(
+  {
+    tokenHash: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -54,6 +63,11 @@ const userSchema = new mongoose.Schema(
     expertise: { type: String, default: "General" },
     rating: { type: Number, min: 0, max: 5, default: 4.5 },
     preferences: { type: mongoose.Schema.Types.Mixed, default: {} },
+    refreshTokens: {
+      type: [refreshTokenSchema],
+      default: [],
+      select: false,
+    },
   },
   options,
 );

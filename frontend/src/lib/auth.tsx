@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { apiRequest, clearToken, getStoredToken, storeToken } from "@/lib/api";
+import { apiRequest, clearAccessToken } from "@/lib/api";
 
 export type UserRole = "admin" | "instructor" | "student";
 
@@ -29,7 +29,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-type AuthResponse = { token: string; user: User };
+type AuthResponse = { accessToken: string; user: User };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
@@ -37,13 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!getStoredToken()) {
-      setLoading(false);
-      return;
-    }
-    apiRequest<{ user: User }>("/auth/me")
+    apiRequest<AuthResponse>("/auth/refresh", { method: "POST" })
       .then(({ user: currentUser }) => setUser(currentUser))
-      .catch(() => clearToken())
+      .catch(() => clearAccessToken())
       .finally(() => setLoading(false));
   }, []);
 
@@ -59,9 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string, role: UserRole, remember = true) => {
     const result = await apiRequest<AuthResponse>("/auth/signin", {
       method: "POST",
-      body: JSON.stringify({ email, password, role }),
+      body: JSON.stringify({ email, password, role, remember }),
     });
-    storeToken(result.token, remember);
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(result.user);
   };
@@ -74,17 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ) => {
     const result = await apiRequest<AuthResponse>("/auth/signup", {
       method: "POST",
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify({ name, email, password, role, remember: true }),
     });
-    storeToken(result.token, true);
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(result.user);
   };
 
   const logout = () => {
-    clearToken();
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(null);
+    void apiRequest("/auth/logout", { method: "POST" }).finally(() => clearAccessToken());
   };
 
   const updateUser = (updatedUser: User) => {
