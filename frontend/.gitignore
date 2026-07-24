@@ -1,0 +1,11 @@
+node_modules/
+.output/
+.wrangler/
+.vite/
+.vinxi/
+.tanstack/
+dist/
+*.local
+.env
+*.log
+
