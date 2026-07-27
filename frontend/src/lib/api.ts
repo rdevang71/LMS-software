@@ -1,6 +1,26 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
 const LEGACY_TOKEN_KEY = "lms_token";
-let accessToken: string | null = null;
+const ACCESS_TOKEN_KEY = "lms_access_token";
+type TokenPersistence = "local" | "session";
+
+function loadStoredAccessToken() {
+  if (typeof window === "undefined") {
+    return { token: null, persistence: null };
+  }
+  const localToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (localToken) {
+    return { token: localToken, persistence: "local" as const };
+  }
+  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+  return {
+    token: sessionToken,
+    persistence: sessionToken ? ("session" as const) : null,
+  };
+}
+
+const storedAccessToken = loadStoredAccessToken();
+let accessToken: string | null = storedAccessToken.token;
+let tokenPersistence: TokenPersistence | null = storedAccessToken.persistence;
 let refreshPromise: Promise<boolean> | null = null;
 
 export class ApiError extends Error {
@@ -18,14 +38,29 @@ function removeLegacyToken() {
   sessionStorage.removeItem(LEGACY_TOKEN_KEY);
 }
 
-export function setAccessToken(token: string) {
+export function setAccessToken(token: string, remember?: boolean) {
   accessToken = token;
+  if (typeof remember === "boolean") {
+    tokenPersistence = remember ? "local" : "session";
+  } else if (!tokenPersistence) {
+    tokenPersistence = "local";
+  }
+
   removeLegacyToken();
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+  const storage = tokenPersistence === "session" ? sessionStorage : localStorage;
+  storage.setItem(ACCESS_TOKEN_KEY, token);
 }
 
 export function clearAccessToken() {
   accessToken = null;
+  tokenPersistence = null;
   removeLegacyToken();
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
 function dispatchAuthExpired() {

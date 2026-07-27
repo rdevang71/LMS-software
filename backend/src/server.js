@@ -2,10 +2,12 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import app from "./app.js";
 import { connectDatabase } from "./config/database.js";
+import { seedDatabase } from "./seed.js";
 
 const port = Number(process.env.PORT) || 5000;
 
 await connectDatabase();
+if (mongoose.connection.readyState === 1) await seedDatabase();
 
 const server = app.listen(port, () => {
   console.log(`Backend running at http://localhost:${port}`);

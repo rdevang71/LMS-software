@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { apiRequest, clearAccessToken } from "@/lib/api";
+import { apiRequest, clearAccessToken, setAccessToken } from "@/lib/api";
 
 export type UserRole = "admin" | "instructor" | "student";
 
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiRequest<AuthResponse>("/auth/refresh", { method: "POST" })
+    apiRequest<{ user: User }>("/auth/me")
       .then(({ user: currentUser }) => setUser(currentUser))
       .catch(() => clearAccessToken())
       .finally(() => setLoading(false));
@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ email, password, role, remember }),
     });
+    setAccessToken(result.accessToken, remember);
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(result.user);
   };
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ name, email, password, role, remember: true }),
     });
+    setAccessToken(result.accessToken, true);
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(result.user);
   };
