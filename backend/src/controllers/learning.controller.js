@@ -6,6 +6,7 @@ import {
   Quiz,
   QuizAttempt,
   Submission,
+  User,
 } from "../models/index.js";
 import {
   deleteCloudinaryAsset,
@@ -77,16 +78,63 @@ export async function getCoursePlayer(request, response, next) {
     const course = await Course.findById(request.params.courseId).lean();
     if (!course)
       return response.status(404).json({ message: "Course not found" });
-    const enrollment = await requireCourseAccess(request.user, course);
+    const canManage = await canManageCourse(request.user, course);
+    if (!canManage && request.user.role !== "student")
+      throw forbidden("You cannot access this course");
+    const enrollment =
+      request.user.role === "student"
+        ? await Enrollment.findOne({
+            studentId: request.user.id,
+            courseId: course._id,
+            status: { $ne: "Refunded" },
+          })
+        : null;
+    if (!canManage && !enrollment && course.status !== "Published")
+      throw forbidden("This course is not available for preview");
+
+    const canAccessContent = canManage || Boolean(enrollment);
+    const instructor = await User.findById(course.instructorId)
+      .select("name avatar bio expertise rating")
+      .lean();
+    const courseContent = canAccessContent
+      ? course.courseContent
+      : course.courseContent.map(
+          ({ videoUrl, videoPublicId: _videoPublicId, ...lesson }) => ({
+            ...lesson,
+            videoUrl: "",
+            videoAvailable: Boolean(videoUrl),
+          }),
+        );
+    const resources = canAccessContent
+      ? course.resources
+      : course.resources.map(
+          ({ url: _url, publicId: _publicId, ...resource }) => ({
+            ...resource,
+            url: "",
+          }),
+        );
+    const { price, ...courseWithoutPrice } = course;
     response.json({
       course: {
-        ...course,
+        ...(request.user.role === "student" ? courseWithoutPrice : course),
+        courseContent,
+        resources,
         id: course._id.toString(),
         instructorId: course.instructorId.toString(),
       },
       progress: enrollment?.progress ?? 0,
       completedLessons: enrollment?.completedLessons?.map(String) ?? [],
-      canManage: await canManageCourse(request.user, course),
+      canManage,
+      canAccessContent,
+      isEnrolled: Boolean(enrollment),
+      requiresAdminEnrollment: price > 0,
+      instructorProfile: {
+        name: instructor?.name ?? course.instructor,
+        avatar: instructor?.avatar ?? "",
+        bio: instructor?.bio ?? "",
+        expertise: instructor?.expertise ?? "General",
+        rating: instructor?.rating ?? course.rating,
+      },
     });
   } catch (error) {
     next(error);

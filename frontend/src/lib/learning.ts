@@ -3,6 +3,7 @@ export type Lesson = {
   title: string;
   description: string;
   videoUrl: string;
+  videoAvailable?: boolean;
   videoPublicId?: string;
   duration: string;
   content: string;
@@ -15,6 +16,14 @@ export type CoursePlayerData = {
     title: string;
     description: string;
     instructor: string;
+    category: string;
+    level: string;
+    duration: string;
+    lessons: number;
+    students: number;
+    rating: number;
+    thumbnail: string;
+    outcomes: string[];
     courseContent: Lesson[];
     resources: {
       _id: string;
@@ -28,6 +37,16 @@ export type CoursePlayerData = {
   progress: number;
   completedLessons: string[];
   canManage: boolean;
+  canAccessContent: boolean;
+  isEnrolled: boolean;
+  requiresAdminEnrollment: boolean;
+  instructorProfile: {
+    name: string;
+    avatar: string;
+    bio: string;
+    expertise: string;
+    rating: number;
+  };
 };
 
 export type QuizQuestion = {

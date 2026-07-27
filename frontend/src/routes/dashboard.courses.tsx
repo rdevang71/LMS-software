@@ -138,8 +138,16 @@ function CoursesPage() {
           {filtered.slice(0, 24).map((c) => (
             <Card
               key={c.id}
-              className="overflow-hidden group hover:shadow-elegant-lg transition-all"
+              className="relative overflow-hidden group hover:-translate-y-0.5 hover:shadow-elegant-lg transition-all focus-within:ring-2 focus-within:ring-primary"
             >
+              {user?.role === "student" && (
+                <Link
+                  to="/dashboard/courses/$courseId"
+                  params={{ courseId: c.id }}
+                  className="absolute inset-0 z-10 rounded-xl"
+                  aria-label={`Open ${c.title}`}
+                />
+              )}
               <div className="relative aspect-video overflow-hidden">
                 <img
                   src={c.thumbnail}
@@ -182,11 +190,15 @@ function CoursesPage() {
                   <Badge variant="outline" className="text-[10px]">
                     {c.level}
                   </Badge>
-                  <Button size="sm" variant="ghost" asChild>
-                    <Link to="/dashboard/courses/$courseId" params={{ courseId: c.id }}>
-                      {user?.role === "student" ? "Start learning" : "Manage content"}
-                    </Link>
-                  </Button>
+                  {user?.role === "student" ? (
+                    <span className="text-sm font-medium text-primary">Open course →</span>
+                  ) : (
+                    <Button size="sm" variant="ghost" asChild>
+                      <Link to="/dashboard/courses/$courseId" params={{ courseId: c.id }}>
+                        Manage content
+                      </Link>
+                    </Button>
+                  )}
                   {user?.role !== "student" && (
                     <div className="flex gap-1">
                       <Button size="icon" variant="ghost" onClick={() => setEditing(c)}>
