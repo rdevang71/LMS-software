@@ -150,15 +150,16 @@ function CoursesPage() {
                 <Badge className="absolute top-2 left-2 bg-white/90 text-foreground">
                   {c.category}
                 </Badge>
-                {c.price === 0 ? (
-                  <Badge className="absolute top-2 right-2 bg-success text-success-foreground">
-                    Free
-                  </Badge>
-                ) : (
-                  <Badge className="absolute top-2 right-2 bg-white/90 text-foreground">
-                    {formatINR(c.price)}
-                  </Badge>
-                )}
+                {user?.role !== "student" &&
+                  (c.price === 0 ? (
+                    <Badge className="absolute top-2 right-2 bg-success text-success-foreground">
+                      Free
+                    </Badge>
+                  ) : (
+                    <Badge className="absolute top-2 right-2 bg-white/90 text-foreground">
+                      {formatINR(c.price)}
+                    </Badge>
+                  ))}
               </div>
               <CardContent className="p-4">
                 <h3 className="font-semibold line-clamp-2 min-h-[3rem]">{c.title}</h3>
@@ -217,7 +218,7 @@ function CoursesPage() {
                 <TableHead>Level</TableHead>
                 <TableHead>Students</TableHead>
                 <TableHead>Rating</TableHead>
-                <TableHead>Price</TableHead>
+                {user?.role !== "student" && <TableHead>Price</TableHead>}
                 <TableHead>Status</TableHead>
                 {user?.role !== "student" && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
@@ -244,7 +245,9 @@ function CoursesPage() {
                   <TableCell>{c.level}</TableCell>
                   <TableCell>{c.students.toLocaleString()}</TableCell>
                   <TableCell>⭐ {c.rating.toFixed(1)}</TableCell>
-                  <TableCell>{c.price === 0 ? "Free" : formatINR(c.price)}</TableCell>
+                  {user?.role !== "student" && (
+                    <TableCell>{c.price === 0 ? "Free" : formatINR(c.price)}</TableCell>
+                  )}
                   <TableCell>
                     <Badge variant={c.status === "Published" ? "default" : "outline"}>
                       {c.status}

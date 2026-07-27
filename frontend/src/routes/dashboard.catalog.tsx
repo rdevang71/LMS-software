@@ -10,7 +10,6 @@ import { useLmsData } from "@/lib/lms-data";
 import { apiRequest } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { formatINR } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard/catalog")({ component: CatalogPage });
 
@@ -70,12 +69,11 @@ function CatalogPage() {
                   {c.duration}
                 </span>
               </div>
-              <div className="flex items-center justify-between mt-3">
-                <span className="font-bold">{c.price === 0 ? "Free" : formatINR(c.price)}</span>
+              <div className="flex items-center justify-end mt-3">
                 <Button
                   size="sm"
                   className="bg-gradient-primary"
-                  disabled={enrolledIds.has(c.id) || c.price > 0}
+                  disabled={enrolledIds.has(c.id) || (c.requiresAdminEnrollment ?? c.price > 0)}
                   onClick={async () => {
                     try {
                       await apiRequest("/enrollments", {
@@ -91,7 +89,7 @@ function CatalogPage() {
                 >
                   {enrolledIds.has(c.id)
                     ? "Enrolled"
-                    : c.price > 0
+                    : (c.requiresAdminEnrollment ?? c.price > 0)
                       ? "Admin enrollment"
                       : "Enroll free"}
                 </Button>

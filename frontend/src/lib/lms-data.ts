@@ -10,6 +10,7 @@ export type Course = {
   instructorId: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   price: number;
+  requiresAdminEnrollment?: boolean;
   students: number;
   rating: number;
   lessons: number;

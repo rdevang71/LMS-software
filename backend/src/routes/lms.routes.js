@@ -446,14 +446,25 @@ async function buildSnapshot(user) {
             grade: submission.grade,
             submittedAt: dateOnly(submission.submittedAt),
           }));
+  const hidePriceFromStudent = (course) => {
+    const { price, ...courseWithoutPrice } = course;
+    return {
+      ...courseWithoutPrice,
+      requiresAdminEnrollment: price > 0,
+    };
+  };
   return {
     categories: categories.map((category) => category.name),
     categoryRecords: categories.map((category) => ({
       id: id(category),
       name: category.name,
     })),
-    courses: visibleCourses,
-    myCourses,
+    courses:
+      user.role === "student"
+        ? visibleCourses.map(hidePriceFromStudent)
+        : visibleCourses,
+    myCourses:
+      user.role === "student" ? myCourses.map(hidePriceFromStudent) : myCourses,
     students: visibleStudents,
     instructors,
     enrollments: visibleEnrollments,
