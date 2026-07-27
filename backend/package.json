@@ -6,7 +6,9 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "cleanup:demo": "node scripts/remove-demo-data.js",
+    "cleanup:demo:execute": "node scripts/remove-demo-data.js --execute"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
