@@ -11,7 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreditCard, Download, DollarSign, CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  CreditCard,
+  Download,
+  IndianRupee,
+  CheckCircle2,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import { useLmsData, type Enrollment } from "@/lib/lms-data";
 import { useState } from "react";
@@ -24,6 +32,7 @@ import {
   paymentStatuses,
   validatePaymentDetails,
 } from "@/lib/payment-options";
+import { formatINR } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard/payments")({ component: PaymentsPage });
 
@@ -37,7 +46,7 @@ function PaymentsPage() {
   const { user } = useAuth();
   function exportTransactions() {
     const rows = [
-      "Invoice,Student,Course,Date,Status,Total fee,Fee paid,Balance,Payment method",
+      "Invoice,Student,Course,Date,Status,Total fee (INR),Fee paid (INR),Balance (INR),Payment method",
       ...enrollments.map((entry) =>
         [
           `INV-${entry.id.slice(-8).toUpperCase()}`,
@@ -80,11 +89,7 @@ function PaymentsPage() {
         }
       />
       <div className="grid gap-4 sm:grid-cols-3 mb-6">
-        <StatCard
-          label="Total revenue"
-          value={`$${stats.revenue.toLocaleString()}`}
-          icon={DollarSign}
-        />
+        <StatCard label="Total revenue" value={formatINR(stats.revenue)} icon={IndianRupee} />
         <StatCard
           label="Successful"
           value={
@@ -171,12 +176,12 @@ function PaymentsPage() {
                   </Badge>
                 </TableCell>
                 <TableCell>{e.paymentMethod}</TableCell>
-                <TableCell className="text-right font-semibold">${e.amount}</TableCell>
+                <TableCell className="text-right font-semibold">{formatINR(e.amount)}</TableCell>
                 <TableCell className="text-right font-semibold text-success">
-                  ${e.paidAmount}
+                  {formatINR(e.paidAmount)}
                 </TableCell>
                 <TableCell className="text-right">
-                  ${Math.max(e.amount - e.paidAmount, 0)}
+                  {formatINR(Math.max(e.amount - e.paidAmount, 0))}
                 </TableCell>
                 {user?.role === "admin" && (
                   <TableCell className="text-right">
@@ -215,7 +220,7 @@ function PaymentsPage() {
             ? [
                 {
                   name: "amount",
-                  label: "Total fee",
+                  label: "Total fee (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -223,7 +228,7 @@ function PaymentsPage() {
                 },
                 {
                   name: "paidAmount",
-                  label: "Fee paid",
+                  label: "Fee paid (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -261,7 +266,7 @@ function PaymentsPage() {
                 },
                 {
                   name: "amount",
-                  label: "Total fee",
+                  label: "Total fee (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -269,7 +274,7 @@ function PaymentsPage() {
                 },
                 {
                   name: "paidAmount",
-                  label: "Fee paid",
+                  label: "Fee paid (INR)",
                   type: "number",
                   required: true,
                   min: 0,

@@ -235,13 +235,13 @@ function NewCoursePage() {
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label>Price (USD)</Label>
+                <Label>Price (INR)</Label>
                 <Input
                   type="number"
                   min="0"
                   value={form.price}
                   onChange={(event) => update("price", event.target.value)}
-                  placeholder="99"
+                  placeholder="2499"
                 />
               </div>
               <div className="space-y-1.5">

@@ -24,6 +24,7 @@ import {
   paymentStatuses,
   validatePaymentDetails,
 } from "@/lib/payment-options";
+import { formatINR } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard/enrollments")({ component: EnrollmentsPage });
 
@@ -84,12 +85,12 @@ function EnrollmentsPage() {
                 </TableCell>
                 <TableCell>{e.course}</TableCell>
                 <TableCell className="text-muted-foreground">{e.date}</TableCell>
-                <TableCell className="text-right font-semibold">${e.amount}</TableCell>
+                <TableCell className="text-right font-semibold">{formatINR(e.amount)}</TableCell>
                 <TableCell className="text-right text-success font-semibold">
-                  ${e.paidAmount}
+                  {formatINR(e.paidAmount)}
                 </TableCell>
                 <TableCell className="text-right">
-                  ${Math.max(e.amount - e.paidAmount, 0)}
+                  {formatINR(Math.max(e.amount - e.paidAmount, 0))}
                 </TableCell>
                 <TableCell>{e.status}</TableCell>
                 <TableCell>{e.progress}%</TableCell>
@@ -130,7 +131,7 @@ function EnrollmentsPage() {
             ? [
                 {
                   name: "amount",
-                  label: "Total fee",
+                  label: "Total fee (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -138,7 +139,7 @@ function EnrollmentsPage() {
                 },
                 {
                   name: "paidAmount",
-                  label: "Fee paid",
+                  label: "Fee paid (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -176,7 +177,7 @@ function EnrollmentsPage() {
                 },
                 {
                   name: "amount",
-                  label: "Total fee",
+                  label: "Total fee (INR)",
                   type: "number",
                   required: true,
                   min: 0,
@@ -184,7 +185,7 @@ function EnrollmentsPage() {
                 },
                 {
                   name: "paidAmount",
-                  label: "Fee paid",
+                  label: "Fee paid (INR)",
                   type: "number",
                   required: true,
                   min: 0,

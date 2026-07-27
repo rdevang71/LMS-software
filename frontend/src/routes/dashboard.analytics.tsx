@@ -20,7 +20,8 @@ import {
 } from "recharts";
 import { useLmsData } from "@/lib/lms-data";
 import { StatCard } from "@/components/stat-card";
-import { TrendingUp, Users, DollarSign, Trophy } from "lucide-react";
+import { TrendingUp, Users, IndianRupee, Trophy } from "lucide-react";
+import { formatCompactINR, formatINR } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard/analytics")({ component: AnalyticsPage });
 
@@ -46,8 +47,8 @@ function AnalyticsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatCard
           label="Revenue"
-          value={`$${stats.revenue.toLocaleString()}`}
-          icon={DollarSign}
+          value={formatINR(stats.revenue)}
+          icon={IndianRupee}
           trend={stats.growth}
         />
         <StatCard label="Students" value={stats.totalStudents} icon={Users} accent="success" />
@@ -69,8 +70,8 @@ function AnalyticsPage() {
               <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                 <XAxis dataKey="month" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
+                <YAxis fontSize={12} tickFormatter={(value) => formatCompactINR(Number(value))} />
+                <Tooltip formatter={(value) => [formatINR(Number(value)), "Revenue"]} />
                 <Line
                   type="monotone"
                   dataKey="revenue"

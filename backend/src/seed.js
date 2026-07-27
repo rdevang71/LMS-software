@@ -46,6 +46,12 @@ const topics = [
   "Android with Kotlin",
   "Growth Hacking",
 ];
+const legacyDemoPrices = new Map([
+  [29, 2499],
+  [49, 3999],
+  [79, 6499],
+  [99, 8299],
+]);
 const names = [
   "Aisha Chen",
   "Liam Patel",
@@ -60,6 +66,34 @@ const names = [
   "Ava Tan",
   "Leo Reyes",
 ];
+
+async function migrateLegacyDemoPricesToInr() {
+  for (const [legacyUsdPrice, inrPrice] of legacyDemoPrices) {
+    const legacyCourses = await Course.find({
+      title: { $in: topics },
+      price: legacyUsdPrice,
+    })
+      .select("_id")
+      .lean();
+    const courseIds = legacyCourses.map((course) => course._id);
+    if (!courseIds.length) continue;
+
+    await Promise.all([
+      Course.updateMany(
+        { _id: { $in: courseIds } },
+        { $set: { price: inrPrice } },
+      ),
+      Enrollment.updateMany(
+        { courseId: { $in: courseIds }, amount: legacyUsdPrice },
+        { $set: { amount: inrPrice } },
+      ),
+      Enrollment.updateMany(
+        { courseId: { $in: courseIds }, paidAmount: legacyUsdPrice },
+        { $set: { paidAmount: inrPrice } },
+      ),
+    ]);
+  }
+}
 
 async function ensureLearningContent() {
   const courses = await Course.find().sort({ createdAt: 1 });
@@ -254,6 +288,8 @@ export async function seedDatabase() {
     );
   }
 
+  await migrateLegacyDemoPricesToInr();
+
   if ((await Category.countDocuments()) > 0) {
     await ensureLearningContent();
     return;
@@ -302,7 +338,7 @@ export async function seedDatabase() {
         instructor: instructor.name,
         instructorId: instructor.id,
         level: ["Beginner", "Intermediate", "Advanced"][index % 3],
-        price: [0, 29, 49, 79, 99][index % 5],
+        price: [0, 2499, 3999, 6499, 8299][index % 5],
         students: 50 + index * 37,
         rating: 4 + (index % 10) / 10,
         lessons: 12 + index,

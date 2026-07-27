@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import { useLmsData, type Course } from "@/lib/lms-data";
 import { useAuth } from "@/lib/auth";
+import { formatINR } from "@/lib/currency";
 import { ResourceFormDialog } from "@/components/resource-form-dialog";
 import { useResourceCrud } from "@/hooks/use-resource-crud";
 
@@ -155,7 +156,7 @@ function CoursesPage() {
                   </Badge>
                 ) : (
                   <Badge className="absolute top-2 right-2 bg-white/90 text-foreground">
-                    ${c.price}
+                    {formatINR(c.price)}
                   </Badge>
                 )}
               </div>
@@ -243,7 +244,7 @@ function CoursesPage() {
                   <TableCell>{c.level}</TableCell>
                   <TableCell>{c.students.toLocaleString()}</TableCell>
                   <TableCell>⭐ {c.rating.toFixed(1)}</TableCell>
-                  <TableCell>{c.price === 0 ? "Free" : `$${c.price}`}</TableCell>
+                  <TableCell>{c.price === 0 ? "Free" : formatINR(c.price)}</TableCell>
                   <TableCell>
                     <Badge variant={c.status === "Published" ? "default" : "outline"}>
                       {c.status}
@@ -307,7 +308,7 @@ function CoursesPage() {
               value: level,
             })),
           },
-          { name: "price", label: "Price", type: "number" },
+          { name: "price", label: "Price (INR)", type: "number" },
           { name: "duration", label: "Duration" },
           {
             name: "status",

@@ -2,7 +2,7 @@ import {
   Users,
   BookOpen,
   GraduationCap,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Activity,
   ArrowRight,
@@ -33,6 +33,7 @@ import {
 } from "recharts";
 import { useLmsData } from "@/lib/lms-data";
 import { useAuth } from "@/lib/auth";
+import { formatCompactINR, formatINR } from "@/lib/currency";
 
 const COLORS = [
   "oklch(0.52 0.22 275)",
@@ -117,8 +118,8 @@ export function AdminDashboard() {
         />
         <StatCard
           label="Revenue"
-          value={`$${(stats.revenue / 1000).toFixed(1)}k`}
-          icon={DollarSign}
+          value={formatCompactINR(stats.revenue)}
+          icon={IndianRupee}
           trend={stats.growth}
           accent="primary"
         />
@@ -153,8 +154,16 @@ export function AdminDashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                 <XAxis dataKey="month" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => formatCompactINR(Number(value))}
+                />
                 <Tooltip
+                  formatter={(value, name) =>
+                    name === "revenue" ? [formatINR(Number(value)), "Revenue"] : [value, "Students"]
+                  }
                   contentStyle={{
                     background: "var(--card)",
                     border: "1px solid var(--border)",
@@ -281,7 +290,7 @@ export function AdminDashboard() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold">${e.amount}</p>
+                  <p className="text-sm font-semibold">{formatINR(e.amount)}</p>
                   <p className="text-xs text-muted-foreground">{e.date}</p>
                 </div>
               </div>

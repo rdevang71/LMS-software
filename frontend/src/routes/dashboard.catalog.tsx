@@ -10,6 +10,7 @@ import { useLmsData } from "@/lib/lms-data";
 import { apiRequest } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { formatINR } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard/catalog")({ component: CatalogPage });
 
@@ -70,7 +71,7 @@ function CatalogPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between mt-3">
-                <span className="font-bold">{c.price === 0 ? "Free" : `$${c.price}`}</span>
+                <span className="font-bold">{c.price === 0 ? "Free" : formatINR(c.price)}</span>
                 <Button
                   size="sm"
                   className="bg-gradient-primary"
