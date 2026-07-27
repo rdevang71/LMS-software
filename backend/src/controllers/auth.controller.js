@@ -69,47 +69,6 @@ async function issueSession(user, response, remember = true) {
   };
 }
 
-export async function signup(request, response, next) {
-  try {
-    const {
-      name,
-      email,
-      password,
-      role = "student",
-      remember = true,
-    } = request.body;
-    if (!name || !email || !password)
-      return response
-        .status(400)
-        .json({ message: "Name, email, and password are required" });
-    if (!/^\S+@\S+\.\S+$/.test(email))
-      return response
-        .status(400)
-        .json({ message: "Enter a valid email address" });
-    if (password.length < 6)
-      return response
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
-    if (!/^(student|instructor)$/.test(role))
-      return response
-        .status(400)
-        .json({ message: "Choose student or instructor" });
-    if (await User.exists({ email: email.toLowerCase() }))
-      return response
-        .status(409)
-        .json({ message: "An account with this email already exists" });
-    const user = await User.create({
-      name,
-      email,
-      role,
-      passwordHash: await bcrypt.hash(password, 12),
-    });
-    response.status(201).json(await issueSession(user, response, remember));
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function signin(request, response, next) {
   try {
     const { email, password, role, remember = true } = request.body;

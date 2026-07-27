@@ -106,7 +106,7 @@ async function refreshAccessToken() {
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   let { response, payload } = await requestOnce(path, options);
-  const mayRefresh = !["/auth/signin", "/auth/signup", "/auth/refresh"].includes(path);
+  const mayRefresh = !["/auth/signin", "/auth/refresh"].includes(path);
 
   if (response.status === 401 && mayRefresh && (await refreshAccessToken())) {
     ({ response, payload } = await requestOnce(path, options));

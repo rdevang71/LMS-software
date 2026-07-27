@@ -119,7 +119,7 @@ function InstructorsPage() {
       <ResourceFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        title={editing ? "Edit instructor" : "Create instructor"}
+        title={editing ? "Edit instructor" : "Add instructor"}
         fields={[
           { name: "name", label: "Full name", required: true },
           { name: "email", label: "Email", type: "email", required: true },
@@ -141,7 +141,7 @@ function InstructorsPage() {
                 rating: editing.rating,
                 password: "",
               }
-            : { expertise: "General", rating: 4.5, password: "12345678" }
+            : { expertise: "General", rating: 4.5, password: "" }
         }
         onSubmit={async (values) => {
           const payload = { ...values, rating: Number(values.rating) };

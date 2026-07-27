@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff, GraduationCap, Sparkles, Trophy, BookOpen, Users } from "lucide-react";
@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth, type UserRole } from "@/lib/auth";
 
@@ -28,7 +27,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const [role, setRole] = useState<UserRole>("admin");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("demo1234");
+  const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -38,17 +37,10 @@ function LoginPage() {
     if (user) navigate({ to: "/dashboard", replace: true });
   }, [user, navigate]);
 
-  const demoEmail: Record<UserRole, string> = {
-    admin: "admin@lms.io",
-    instructor: "instructor@lms.io",
-    student: "student@lms.io",
-  };
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
-    const finalEmail = email || demoEmail[role];
-    if (!/^\S+@\S+\.\S+$/.test(finalEmail)) {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
       setErr("Enter a valid email address.");
       return;
     }
@@ -58,7 +50,7 @@ function LoginPage() {
     }
     setBusy(true);
     try {
-      await login(finalEmail, password, role, remember);
+      await login(email, password, role, remember);
       toast.success("Welcome back!", { description: `Signed in as ${role}.` });
       navigate({ to: "/dashboard", replace: true });
     } catch (requestError) {
@@ -159,7 +151,7 @@ function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder={demoEmail[role]}
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -214,16 +206,8 @@ function LoginPage() {
               {busy ? "Signing in…" : `Sign in as ${role}`}
             </Button>
 
-            <Card className="bg-muted/40 p-3 text-xs text-muted-foreground border-dashed">
-              <span className="font-semibold text-foreground">Demo:</span> Leave email blank and
-              click sign in. Password is prefilled.
-            </Card>
-
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary font-medium hover:underline">
-                Sign up
-              </Link>
+              Need an account? Contact your administrator.
             </p>
           </form>
         </div>

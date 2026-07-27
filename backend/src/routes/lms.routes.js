@@ -662,16 +662,11 @@ router.post(
   allowRoles("admin"),
   async (request, response, next) => {
     try {
-      const {
-        name,
-        email,
-        role = "student",
-        password = "demo1234",
-      } = request.body;
-      if (!name || !email)
+      const { name, email, role = "student", password } = request.body;
+      if (!name || !email || !password)
         return response
           .status(400)
-          .json({ message: "Name and email are required" });
+          .json({ message: "Name, email, and password are required" });
       if (!/^\S+@\S+\.\S+$/.test(email))
         return response
           .status(400)

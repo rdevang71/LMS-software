@@ -162,7 +162,7 @@ function StudentsPage() {
       <ResourceFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        title={editing ? "Edit student" : "Create student"}
+        title={editing ? "Edit student" : "Invite student"}
         description={
           !editing ? "The student can sign in immediately with the password you set." : undefined
         }
@@ -177,9 +177,7 @@ function StudentsPage() {
           },
         ]}
         initialValues={
-          editing
-            ? { name: editing.name, email: editing.email, password: "" }
-            : { password: "12345678" }
+          editing ? { name: editing.name, email: editing.email, password: "" } : { password: "" }
         }
         onSubmit={async (values) => {
           if (editing) await save("users", editing.id, values);

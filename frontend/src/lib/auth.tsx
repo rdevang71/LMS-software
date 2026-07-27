@@ -17,12 +17,6 @@ export interface User {
 interface AuthContextValue {
   user: User | null;
   login: (email: string, password: string, role: UserRole, remember?: boolean) => Promise<void>;
-  signup: (
-    name: string,
-    email: string,
-    password: string,
-    role: Exclude<UserRole, "admin">,
-  ) => Promise<void>;
   updateUser: (user: User) => void;
   logout: () => void;
   loading: boolean;
@@ -62,21 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
   };
 
-  const signup = async (
-    name: string,
-    email: string,
-    password: string,
-    role: Exclude<UserRole, "admin">,
-  ) => {
-    const result = await apiRequest<AuthResponse>("/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password, role, remember: true }),
-    });
-    setAccessToken(result.accessToken, true);
-    queryClient.removeQueries({ queryKey: ["lms-data"] });
-    setUser(result.user);
-  };
-
   const logout = () => {
     queryClient.removeQueries({ queryKey: ["lms-data"] });
     setUser(null);
@@ -89,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, updateUser, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, updateUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
